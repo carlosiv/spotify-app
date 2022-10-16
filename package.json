@@ -10,14 +10,17 @@
   },
   "dependencies": {
     "@types/spotify-web-api-node": "^5.0.7",
+    "lodash": "^4.17.21",
     "next": "12.3.1",
     "next-auth": "^4.12.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.4.0",
-    "spotify-web-api-node": "^5.0.2"
+    "spotify-web-api-node": "^5.0.2",
+    "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.186",
     "@types/node": "18.7.23",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
