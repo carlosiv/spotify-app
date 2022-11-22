@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import SpotifyProvider from "next-auth/providers/spotify";
-import spotifyApi, { LOGIN_URL } from "../../../lib/spotify";
+import spotifyApi, { LOGIN_URL } from "@lib/spotify";
 
 async function refreshAccessToken(token) {
   try {
@@ -12,6 +12,7 @@ async function refreshAccessToken(token) {
     return {
       ...token,
       accessToken: refreshedToken.access_token,
+      refreshToken: refreshedToken.refresh_token ?? token.refreshToken,
       accessTokenExpires: Date.now() + refreshedToken.expires_in * 1000,
     };
   } catch (error) {
@@ -29,6 +30,9 @@ export const authOptions = {
       clientId: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
       clientSecret: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET,
       authorization: LOGIN_URL,
+      httpOptions: {
+        timeout: 40000,
+      },
     }),
   ],
   secret: process.env.JWR_SECRET,
@@ -44,7 +48,6 @@ export const authOptions = {
           refreshToken: account.refresh_token,
           username: account.providerAccountId,
           accessTokenExpires: account.expires_at * 1000,
-          refreshToken: token.refreshToken,
         };
       }
 
