@@ -3,9 +3,9 @@ import useSongInfo from "@hooks/useSongInfo";
 import useSpotify from "@hooks/useSpotify";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
+import { MdOutlineQueueMusic } from "react-icons/md";
 import { SlVolumeOff, SlVolume2 } from "react-icons/sl";
 import { HiPause, HiOutlineHeart, HiPlay } from "react-icons/hi";
-import { HiOutlineQueueList } from "react-icons/hi2";
 import { BiSkipNext, BiSkipPrevious, BiRepeat } from "react-icons/bi";
 import { TbArrowsShuffle, TbMicrophone2 } from "react-icons/tb";
 import { useRecoilState } from "recoil";
@@ -29,23 +29,31 @@ export default function Player(): JSX.Element {
 
   function fetchCurrentSong(): void {
     if (!songInfo) {
-      spotifyApi.getMyCurrentPlayingTrack().then((data) => {
-        if (data.body) {
-          setCurrentTrackId(data.body.item?.id!);
-          spotifyApi.getMyCurrentPlaybackState().then((data) => {
-            setIslaying(data.body.is_playing);
-          });
-        } else {
-          console.log("Error fetching current track");
-        }
-      });
+      spotifyApi
+        .getMyCurrentPlayingTrack()
+        .then((data) => {
+          if (data.body) {
+            setCurrentTrackId(data.body.item?.id!);
+            spotifyApi
+              .getMyCurrentPlaybackState()
+              .then((data) => {
+                setIslaying(data.body.is_playing);
+                setVolume(50);
+              })
+              .then((error) =>
+                console.log("Error fetching current playback state", error)
+              );
+          } else {
+            console.log("Error fetching current playing track");
+          }
+        })
+        .then((error) => console.log("Error:", error));
     }
   }
 
   useEffect(() => {
     if (spotifyApi.getAccessToken() && !currentTrackId) {
       fetchCurrentSong();
-      setVolume(50);
     }
   }, [currentTrackId, session, spotifyApi]);
 
@@ -53,7 +61,7 @@ export default function Player(): JSX.Element {
     spotifyApi
       .getMyCurrentPlaybackState()
       .then((data) => {
-        if (data.body.is_playing) {
+        if (data.body && data.body.is_playing) {
           spotifyApi.pause();
           setIslaying(false);
         } else {
@@ -61,7 +69,7 @@ export default function Player(): JSX.Element {
           setIslaying(true);
         }
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error("handle play error"));
   }
 
   function handleMutePlayer() {
@@ -85,7 +93,7 @@ export default function Player(): JSX.Element {
     spotifyApi
       .setVolume(deBouncedVolume)
       .catch((error) => console.error(error));
-  }, [deBouncedVolume, spotifyApi]);
+  }, [deBouncedVolume]);
 
   return (
     <div className="h-24 bg-gradient-to-b from-black to-gray-900 text-white grid grid-cols-3 text-xs md:text-base md:px-8">
@@ -116,7 +124,7 @@ export default function Player(): JSX.Element {
       </div>
       <div className="flex items-center justify-end space-x-3 md:space-x-4 pr-5">
         <TbMicrophone2 />
-        <HiOutlineQueueList />
+        <MdOutlineQueueMusic />
         {isMuted ? (
           <SlVolumeOff onClick={handleMutePlayer} />
         ) : (

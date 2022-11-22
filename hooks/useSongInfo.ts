@@ -20,7 +20,9 @@ function useSongInfo() {
               Authorization: `Bearer ${spotifyApi.getAccessToken()}`,
             },
           }
-        ).then((res) => res.json());
+        )
+          .then((res) => res.json())
+          .catch((error) => console.log("Unable to fetch song info", error));
 
         setSongInfo(trackInfo);
       }
